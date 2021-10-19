@@ -1,8 +1,8 @@
 class Hyperparams:
     '''Hyper parameters'''
     # data
-    train_fpath = '../v2/data/sudoku.csv'
-    test_fpath = '../v2/data/test.csv'
+    train_fpath = './data/sudoku.csv'
+    test_fpath = './data/test.csv'
     
     # model
     num_blocks = 10

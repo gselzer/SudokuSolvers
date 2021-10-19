@@ -1,4 +1,5 @@
 *.pyc
+*sudoku.csv
 asset/
 data/
 _*
