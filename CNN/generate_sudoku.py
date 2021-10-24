@@ -28,21 +28,21 @@ def construct_puzzle_solution():
     # satisfying the constraints above.
     while True:
         try:
-            puzzle  = [[0]*9 for i in range(9)] # start with blank puzzle
-            rows    = [set(range(1,10)) for i in range(9)] # set of available
-            columns = [set(range(1,10)) for i in range(9)] #   numbers for each
-            squares = [set(range(1,10)) for i in range(9)] #   row, column and square
-            for i in range(9):
-                for j in range(9):
+            puzzle  = [[0]*hp.puzzleSize for i in range(hp.puzzleSize)] # start with blank puzzle
+            rows    = [set(range(1,hp.puzzleSize + 1)) for i in range(hp.puzzleSize)] # set of available
+            columns = [set(range(1,hp.puzzleSize + 1)) for i in range(hp.puzzleSize)] #   numbers for each
+            squares = [set(range(1,hp.puzzleSize + 1)) for i in range(hp.puzzleSize)] #   row, column and square
+            for i in range(hp.puzzleSize):
+                for j in range(hp.puzzleSize):
                     # pick a number for cell (i,j) from the set of remaining available numbers
-                    choices = rows[i].intersection(columns[j]).intersection(squares[(i/3)*3 + j/3])
+                    choices = rows[i].intersection(columns[j]).intersection(squares[(i/hp.cellSize)*hp.cellSize + j/hp.cellSize])
                     choice  = random.choice(list(choices))
         
                     puzzle[i][j] = choice
         
                     rows[i].discard(choice)
                     columns[j].discard(choice)
-                    squares[(i/3)*3 + j/3].discard(choice)
+                    squares[(i/hp.cellSize)*hp.cellSize + j/hp.cellSize].discard(choice)
 
             # success! every cell is filled.
             return puzzle
@@ -63,15 +63,15 @@ def pluck(puzzle, n=0):
     Answers the question: can the cell (i,j) in the puzzle "puz" contain the number
     in cell "c"? """
     def canBeA(puz, i, j, c):
-        v = puz[c/9][c%9]
+        v = puz[c/hp.puzzleSize][c%hp.puzzleSize]
         if puz[i][j] == v: return True
-        if puz[i][j] in range(1,10): return False
+        if puz[i][j] in range(1,hp.puzzleSize+1): return False
             
-        for m in range(9): # test row, col, square
+        for m in range(hp.puzzleSize): # test row, col, square
             # if not the cell itself, and the mth cell of the group contains the value v, then "no"
-            if not (m==c/9 and j==c%9) and puz[m][j] == v: return False
-            if not (i==c/9 and m==c%9) and puz[i][m] == v: return False
-            if not ((i/3)*3 + m/3==c/9 and (j/3)*3 + m%3==c%9) and puz[(i/3)*3 + m/3][(j/3)*3 + m%3] == v:
+            if not (m==c/hp.puzzleSize and j==c%hp.puzzleSize) and puz[m][j] == v: return False
+            if not (i==c/hp.puzzleSize and m==c%hp.puzzleSize) and puz[i][m] == v: return False
+            if not ((i/hp.cellSize)*hp.cellSize + m/hp.cellSize==c/hp.puzzleSize and (j/hp.cellSize)*hp.cellSize + m%hp.cellSize==c%hp.puzzleSize) and puz[(i/hp.cellSize)*hp.cellSize + m/hp.cellSize][(j/hp.cellSize)*hp.cellSize + m%hp.cellSize] == v:
                 return False
 
         return True
@@ -92,19 +92,19 @@ def pluck(puzzle, n=0):
         # this cell and must try another one.
         row = col = square = False
 
-        for i in range(9):
-            if i != cell/9:
-                if canBeA(puzzle, i, cell%9, cell): row = True
-            if i != cell%9:
-                if canBeA(puzzle, cell/9, i, cell): col = True
-            if not (((cell/9)/3)*3 + i/3 == cell/9 and ((cell/9)%3)*3 + i%3 == cell%9):
-                if canBeA(puzzle, ((cell/9)/3)*3 + i/3, ((cell/9)%3)*3 + i%3, cell): square = True
+        for i in range(hp.puzzleSize):
+            if i != cell/hp.puzzleSize:
+                if canBeA(puzzle, i, cell%hp.puzzleSize, cell): row = True
+            if i != cell%hp.puzzleSize:
+                if canBeA(puzzle, cell/hp.puzzleSize, i, cell): col = True
+            if not (((cell/hp.puzzleSize)/hp.cellSize)*hp.cellSize + i/hp.cellSize == cell/hp.puzzleSize and ((cell/hp.puzzleSize)%hp.cellSize)*hp.cellSize + i%hp.cellSize == cell%hp.puzzleSize):
+                if canBeA(puzzle, ((cell/hp.puzzleSize)/hp.cellSize)*hp.cellSize + i/hp.cellSize, ((cell/hp.puzzleSize)%hp.cellSize)*hp.cellSize + i%hp.cellSize, cell): square = True
 
         if row and col and square:
             continue # could not pluck this cell, try again.
         else:
             # this is a pluckable cell!
-            puzzle[cell/9][cell%9] = 0 # 0 denotes a blank cell
+            puzzle[cell/hp.puzzleSize][cell%hp.puzzleSize] = 0 # 0 denotes a blank cell
             cells.discard(cell) # remove from the set of visible cells (pluck it)
             # we don't need to reset "cellsleft" because if a cell was not pluckable
             # earlier, then it will still not be pluckable now (with less information
@@ -169,8 +169,8 @@ def main(num):
     '''
     Generates `num` games of Sudoku.
     '''
-    quizzes = np.zeros((num, 9, 9), np.int32)
-    solutions = np.zeros((num, 9, 9), np.int32)
+    quizzes = np.zeros((num, hp.puzzleSize, hp.puzzleSize), np.int32)
+    solutions = np.zeros((num, hp.puzzleSize, hp.puzzleSize), np.int32)
     for i in range(num):
         all_results, solution = run(n=23, iter=10)
         quiz = best(all_results)
