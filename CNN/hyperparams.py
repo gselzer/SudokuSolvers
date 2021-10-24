@@ -14,4 +14,5 @@ class Hyperparams:
     logdir = "logdir"
     batch_size = 64
     num_epochs = 3
-    
+    N = 3
+    N2 = N ** 2

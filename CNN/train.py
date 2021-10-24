@@ -19,8 +19,8 @@ class Graph(object):
             if is_training:
                 self.x, self.y, self.num_batch = get_batch_data() # (N, 9, 9)
             else:
-                self.x = tf.placeholder(tf.float32, (None, 9, 9))
-                self.y = tf.placeholder(tf.int32, (None, 9, 9))
+                self.x = tf.placeholder(tf.float32, (None, hp.puzzleSize, hp.puzzleSize))
+                self.y = tf.placeholder(tf.int32, (None, hp.puzzleSize, hp.puzzleSize))
             self.enc = tf.expand_dims(self.x, axis=-1) # (N, 9, 9, 1)
             self.istarget = tf.to_float(tf.equal(self.x, tf.zeros_like(self.x))) # 0: blanks
             

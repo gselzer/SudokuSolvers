@@ -24,16 +24,16 @@ def load_data(type="train"):
     lines = open(fpath, 'r').read().splitlines()[1:]
     nsamples = len(lines)
     
-    X = np.zeros((nsamples, 9*9), np.float32)  
-    Y = np.zeros((nsamples, 9*9), np.int32) 
+    X = np.zeros((nsamples, hp.puzzleSize*hp.puzzleSize), np.float32)  
+    Y = np.zeros((nsamples, hp.puzzleSize*hp.puzzleSize), np.int32) 
     
     for i, line in enumerate(lines):
         quiz, solution = line.split(",")
         for j, (q, s) in enumerate(zip(quiz, solution)):
             X[i, j], Y[i, j] = q, s
     
-    X = np.reshape(X, (-1, 9, 9))
-    Y = np.reshape(Y, (-1, 9, 9))
+    X = np.reshape(X, (-1, hp.puzzleSize, hp.puzzleSize))
+    Y = np.reshape(Y, (-1, hp.puzzleSize, hp.puzzleSize))
     return X, Y
         
 def get_batch_data():

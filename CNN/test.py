@@ -22,7 +22,7 @@ def write_to_file(x, y, preds, fout):
     '''
     with open(fout, 'w') as fout:
         total_hits, total_blanks = 0, 0
-        for xx, yy, pp in zip(x.reshape(-1, 9*9), y.reshape(-1, 9*9), preds.reshape(-1, 9*9)): # sample-wise
+        for xx, yy, pp in zip(x.reshape(-1, hp.puzzleSize*hp.puzzleSize), y.reshape(-1, hp.puzzleSize*hp.puzzleSize), preds.reshape(-1, hp.puzzleSize*hp.puzzleSize)): # sample-wise
             fout.write("qz: {}\n".format("".join(str(num) if num != 0 else "_" for num in xx)))
             fout.write("sn: {}\n".format("".join(str(num) for num in yy)))
             fout.write("pd: {}\n".format("".join(str(num) for num in pp)))
@@ -66,16 +66,16 @@ def test():
                 probs *= istarget #(N, 9, 9)
                 preds *= istarget #(N, 9, 9)
 
-                probs = np.reshape(probs, (-1, 9*9)) #(N, 9*9)
-                preds = np.reshape(preds, (-1, 9*9))#(N, 9*9)
+                probs = np.reshape(probs, (-1, hp.puzzleSize*hp.puzzleSize)) #(N, 9*9)
+                preds = np.reshape(preds, (-1, hp.puzzleSize*hp.puzzleSize))#(N, 9*9)
                 
-                _preds = np.reshape(_preds, (-1, 9*9))
+                _preds = np.reshape(_preds, (-1, hp.puzzleSize*hp.puzzleSize))
                 maxprob_ids = np.argmax(probs, axis=1) # (N, ) <- blanks of the most probable prediction
                 maxprobs = np.max(probs, axis=1, keepdims=False)
                 for j, (maxprob_id, maxprob) in enumerate(zip(maxprob_ids, maxprobs)):
                     if maxprob != 0:
                         _preds[j, maxprob_id] = preds[j, maxprob_id]
-                _preds = np.reshape(_preds, (-1, 9, 9))
+                _preds = np.reshape(_preds, (-1, hp.puzzleSize, hp.puzzleSize))
                 _preds = np.where(x==0, _preds, y) # # Fill in the non-blanks with correct numbers
 
                 if np.count_nonzero(_preds) == _preds.size: break
