@@ -7,6 +7,7 @@ Kyubyong Park. kbpark.linguist@gmail.com www.github.com/kyubyong
 
 import random, copy
 import numpy as np
+from hyperparams import Hyperparams as hp
 
 sample  = [ [3,4,1,2,9,7,6,8,5],
             [2,5,6,8,3,4,9,7,1],
@@ -80,7 +81,7 @@ def pluck(puzzle, n=0):
     """
     starts with a set of all 81 cells, and tries to remove one (randomly) at a time
     but not before checking that the cell can still be deduced from the remaining cells. """
-    cells     = set(range(81))
+    cells     = set(range(hp.puzzleSize ** 2))
     cellsleft = cells.copy()
     while len(cells) > n and len(cellsleft):
         cell = random.choice(list(cellsleft)) # choose a cell from ones we haven't tried
@@ -172,16 +173,16 @@ def main(num):
     quizzes = np.zeros((num, hp.puzzleSize, hp.puzzleSize), np.int32)
     solutions = np.zeros((num, hp.puzzleSize, hp.puzzleSize), np.int32)
     for i in range(num):
-        all_results, solution = run(n=23, iter=10)
+        all_results, solution = run(n=hp.puzzleSize ** 2 / 3, iter=10)
         quiz = best(all_results)
         
         quizzes[i] = quiz
         solutions[i] = solution
 
-        if (i+1) % 1000 == 0:
+        if (i+1) % (num / 10) == 0:
             print i+1
-            np.save('data/sudoku.npz', quizzes=quizzes, solutions=solutions)
+            np.savez('data/sudoku.npz', quizzes=quizzes, solutions=solutions)
 
 if __name__ == "__main__":
-    main(1000000)
+    main(10)
     print "Done!"
