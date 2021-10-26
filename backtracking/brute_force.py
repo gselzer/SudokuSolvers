@@ -2,22 +2,24 @@
 # Author: Gabriel Selzer
 
 from data_load import load_data, get_batch_data
+from hyperparams import Hyperparams as hp
+import numpy as np
 
-boxSize = 3
-N=boxSize * boxSize
+boxSize = hp.cellSize
+N=hp.puzzleSize
 
 
 def isSafe(grid, row, col, num):
-    for x in range(9):
+    for x in range(N):
         if grid[row][x] == num:
             return False
-    for x in range(9):
+    for x in range(N):
         if grid[x][col] == num:
             return False
-    startRow = row - row % 3
-    startCol = col - col % 3
-    for i in range(3):
-        for j in range(3):
+    startRow = row - row % boxSize
+    startCol = col - col % boxSize
+    for i in range(boxSize):
+        for j in range(boxSize):
             if grid[i + startRow][j + startCol] == num:
                 return False
     return True
@@ -38,11 +40,23 @@ def solveSudoku(grid, row, col):
         grid[row][col] = 0
     return False
 
+def backtrack(X):
+    mutable = np.copy(X)
+    if solveSudoku(mutable, 0, 0):
+        return mutable
+    raise ValueError(X, " has no solution!")
+
+
 def main():
     
     X, Y = load_data(type="test")
-    if solveSudoku(X[1], 0, 0):
-        print(X[1] - Y[1])
+    try:
+        solution = backtrack(X[1])
+    except ValueError:
+        print(X, ' has no solution!')
+
+    print(solution - Y[1])
 
 if __name__ == "__main__":
-    main(); print("Done")
+    main()
+    print("Done")
