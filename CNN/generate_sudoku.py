@@ -25,32 +25,25 @@ squares (sub-grids) contain the numbers 1 through 9.
 
 For example, "sample" (above) could be the output of this function. """
 def construct_puzzle_solution():
-    # Loop until we're able to fill all 81 cells with numbers, while
-    # satisfying the constraints above.
-    while True:
-        try:
-            puzzle  = [[0]*hp.puzzleSize for i in range(hp.puzzleSize)] # start with blank puzzle
-            rows    = [set(range(1,hp.puzzleSize + 1)) for i in range(hp.puzzleSize)] # set of available
-            columns = [set(range(1,hp.puzzleSize + 1)) for i in range(hp.puzzleSize)] #   numbers for each
-            squares = [set(range(1,hp.puzzleSize + 1)) for i in range(hp.puzzleSize)] #   row, column and square
-            for i in range(hp.puzzleSize):
-                for j in range(hp.puzzleSize):
-                    # pick a number for cell (i,j) from the set of remaining available numbers
-                    choices = rows[i].intersection(columns[j]).intersection(squares[(i/hp.cellSize)*hp.cellSize + j/hp.cellSize])
-                    choice  = random.choice(list(choices))
-        
-                    puzzle[i][j] = choice
-        
-                    rows[i].discard(choice)
-                    columns[j].discard(choice)
-                    squares[(i/hp.cellSize)*hp.cellSize + j/hp.cellSize].discard(choice)
+    base  = hp.cellSize
+    side  = base*base
 
-            # success! every cell is filled.
-            return puzzle
-            
-        except IndexError:
-            # if there is an IndexError, we have worked ourselves in a corner (we just start over)
-            pass
+    # pattern for a baseline valid solution
+    def pattern(r,c): return (base*(r%base)+r//base+c)%side
+
+    # randomize rows, columns and numbers (of valid base pattern)
+    from random import sample
+    def shuffle(s): return sample(s,len(s)) 
+    rBase = range(base) 
+    rows  = [ g*base + r for g in shuffle(rBase) for r in shuffle(rBase) ] 
+    cols  = [ g*base + c for g in shuffle(rBase) for c in shuffle(rBase) ]
+    nums  = shuffle(range(1,base*base+1))
+
+    # produce board using randomized baseline pattern
+    board = [ [nums[pattern(r,c)] for c in cols] for r in rows ]
+    print(np.array(board))
+    return board
+
 
 """
 Randomly pluck out cells (numbers) from the solved puzzle grid, ensuring that any
@@ -64,7 +57,7 @@ def pluck(puzzle, n=0):
     Answers the question: can the cell (i,j) in the puzzle "puz" contain the number
     in cell "c"? """
     def canBeA(puz, i, j, c):
-        v = puz[c/hp.puzzleSize][c%hp.puzzleSize]
+        v = puz[int(c/hp.puzzleSize)][c%hp.puzzleSize]
         if puz[i][j] == v: return True
         if puz[i][j] in range(1,hp.puzzleSize+1): return False
             
@@ -84,7 +77,7 @@ def pluck(puzzle, n=0):
     cells     = set(range(hp.puzzleSize ** 2))
     cellsleft = cells.copy()
     while len(cells) > n and len(cellsleft):
-        cell = random.choice(list(cellsleft)) # choose a cell from ones we haven't tried
+        cell = int(random.choice(list(cellsleft))) # choose a cell from ones we haven't tried
         cellsleft.discard(cell) # record that we are trying this cell
 
         # row, col and square record whether another cell in those groups could also take
@@ -95,9 +88,11 @@ def pluck(puzzle, n=0):
 
         for i in range(hp.puzzleSize):
             if i != cell/hp.puzzleSize:
-                if canBeA(puzzle, i, cell%hp.puzzleSize, cell): row = True
+                j = cell % hp.puzzleSize
+                if canBeA(puzzle, i, j, cell): row = True
             if i != cell%hp.puzzleSize:
-                if canBeA(puzzle, cell/hp.puzzleSize, i, cell): col = True
+                i = int(cell / hp.puzzleSize)
+                if canBeA(puzzle, i, i, cell): col = True
             if not (((cell/hp.puzzleSize)/hp.cellSize)*hp.cellSize + i/hp.cellSize == cell/hp.puzzleSize and ((cell/hp.puzzleSize)%hp.cellSize)*hp.cellSize + i%hp.cellSize == cell%hp.puzzleSize):
                 if canBeA(puzzle, ((cell/hp.puzzleSize)/hp.cellSize)*hp.cellSize + i/hp.cellSize, ((cell/hp.puzzleSize)%hp.cellSize)*hp.cellSize + i%hp.cellSize, cell): square = True
 
@@ -105,7 +100,8 @@ def pluck(puzzle, n=0):
             continue # could not pluck this cell, try again.
         else:
             # this is a pluckable cell!
-            puzzle[cell/hp.puzzleSize][cell%hp.puzzleSize] = 0 # 0 denotes a blank cell
+            i = int(cell / hp.puzzleSize)
+            puzzle[i][cell%hp.puzzleSize] = 0 # 0 denotes a blank cell
             cells.discard(cell) # remove from the set of visible cells (pluck it)
             # we don't need to reset "cellsleft" because if a cell was not pluckable
             # earlier, then it will still not be pluckable now (with less information
@@ -137,11 +133,11 @@ one of those.
 """
 def run(n = 28, iter=100):
     all_results = {}
-#     print "Constructing a sudoku puzzle."
-#     print "* creating the solution..."
+    print("Constructing a sudoku puzzle.")
+    print("* creating the solution...")
     a_puzzle_solution = construct_puzzle_solution()
     
-#     print "* constructing a puzzle..."
+    print("* constructing a puzzle...")
     for i in range(iter):
         puzzle = copy.deepcopy(a_puzzle_solution)
         (result, number_of_cells) = pluck(puzzle, n)
@@ -157,7 +153,7 @@ def best(set_of_puzzles):
 
 def display(puzzle):
     for row in puzzle:
-        print ' '.join([str(n or '_') for n in row])
+        print(' '.join([str(n or '_') for n in row]))
 
     
 # """ Controls starts here """
@@ -179,10 +175,10 @@ def main(num):
         quizzes[i] = quiz
         solutions[i] = solution
 
-        if (i+1) % (num / 10) == 0:
-            print i+1
+        # save every 10 puzzles
+        if (i+1) % (10) == 0:
             np.savez('data/sudoku.npz', quizzes=quizzes, solutions=solutions)
 
 if __name__ == "__main__":
     main(10)
-    print "Done!"
+    print("Done!")
