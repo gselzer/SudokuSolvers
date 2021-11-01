@@ -1,5 +1,5 @@
 
-from brute_force import backtrack
+from CGA import CGA
 import numpy as np
 import timeit
 
@@ -14,8 +14,7 @@ def runAll():
     quizzes, solutions = load_data('../CNN/data/sudoku.npz')
     starttime = timeit.default_timer()
     for i in range(len(quizzes)):
-        print(quizzes[i])
-        result = backtrack(quizzes[i])
+        result = CGA(quizzes[i])
         print("Solved puzzle ", i);
     print("The time difference is: ", timeit.default_timer() - starttime)
 
