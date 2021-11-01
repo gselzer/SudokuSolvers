@@ -2,6 +2,7 @@
 *sudoku.csv
 asset/
 data/
+CNN/logdir/
 _*
 *~
 

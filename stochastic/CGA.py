@@ -2,11 +2,12 @@
 # Author: Gabriel Selzer
 
 from data_load import load_data, get_batch_data
+from hyperparams import Hyperparams as hp
 import numpy as np
 import math
 import random
 
-boxSize = 3
+boxSize = hp.cellSize
 N=boxSize * boxSize
 
 boxElements = set(range(1, N + 1))
@@ -80,16 +81,14 @@ def mutate(grid, mask, m):
     
 
 
-def main():
-    # load matrix
-    X, Y = load_data(type="test")
-    grid = np.array(X[1])
+def CGA(grid):
     # create mask of correct answers
     mask = np.zeros(grid.shape)
     mask[grid > 0] = 1
 
     # create population
-    population = [populateGrid(grid) for x in range(50)]
+    offspring = 100
+    population = [populateGrid(grid) for x in range(offspring)]
     population = [(g, fitness(g)) for g in population]
     print(grid)
 
@@ -99,22 +98,40 @@ def main():
     # breed population until we find a specimen with fitness of zero
     while (population[0][1] != 0):
         print("Best fitness: ", population[0][1])
-        p = population[0][1] ** (2.0/3.0)
+        p = population[0][1]
         m = int(math.ceil(p))
-        offspring = 25;
         for i in range(offspring):
             copy = mutate(population[i][0], mask, m)
             copyFitness = fitness(copy)
             population.append((copy, copyFitness))
+        #print(len(population))
+
         fitnessSort(population)
-        del population[-offspring:]
+        #tmp = population[:50]
+        #del population[:50]
+        #tmp.append(random.sample(population, 50))
+        #population = tmp
+        #print(len(population))
+        tmp = population[:10]
+        population = tmp + random.sample(population, 90)
+        print(len(population))
+
+        #fitnessSort(population)
+        #del population[-offspring:]
+
+    # print(population[0][0])
+    return population[0][0]
 
 
+
+def main():
+    # load matrix
+    X, Y = load_data(type="test")
+    grid = np.array(X[1])
     # print solution
-    print(population[0][0])
-
-
+    solution = CGA(grid)
+    print(grid)
 
 
 if __name__ == "__main__":
-    main(); print("Done")
+    CGA(); print("Done")

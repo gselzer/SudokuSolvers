@@ -9,6 +9,10 @@ import numpy as np
 from hyperparams import Hyperparams as hp
 
 def load_data(type="train"):
+    print("----------TYPE: ",type)
+    if type=="test":
+        npzfile = np.load(hp.test_fpath)
+        return npzfile['quizzes'], npzfile['solutions']
     '''Loads training / test data.
     
     Args
@@ -46,6 +50,7 @@ def get_batch_data():
         num_batch = A Python int. Number of batches.
     '''
     X, Y = load_data(type="train")
+    print("******SHAPE: ", X.shape)
     
     # Create Queues
     input_queues = tf.train.slice_input_producer([tf.convert_to_tensor(X, tf.float32), 

@@ -42,6 +42,7 @@ def write_to_file(x, y, preds, fout):
 
 def test():
     x, y = load_data(type="test")
+    print(x)
     
     g = Graph(is_training=False)
     with g.graph.as_default():    
