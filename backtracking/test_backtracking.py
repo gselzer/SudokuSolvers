@@ -10,16 +10,17 @@ def load_data(f):
     print("Loaded ", len(quizzes), " puzzles")
     return (quizzes, solutions)
 
-def runAll():
-    quizzes, solutions = load_data('../CNN/data/sudoku.npz')
+def runAll(quizzes, solutions):
     starttime = timeit.default_timer()
     for i in range(len(quizzes)):
-        print(quizzes[i])
         result = backtrack(quizzes[i])
-        print("Solved puzzle ", i);
-    print("The time difference is: ", timeit.default_timer() - starttime)
+
+def test_backtracking(benchmark):
+    quizzes, solutions = load_data('../CNN/data/sudoku.npz')
+    benchmark.pedantic(runAll, kwargs={'quizzes': quizzes, 'solutions': solutions}, iterations=10)
 
 
 if __name__ == "__main__":
-    runAll()
+    quizzes, solutions = load_data('../CNN/data/sudoku.npz')
+    runAll(quizzes, solutions)
     print("Done")
