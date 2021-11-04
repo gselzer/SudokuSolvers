@@ -45,7 +45,8 @@ def construct_puzzle_solution():
 
     # produce board using randomized baseline pattern
     board = [ [nums[pattern(r,c)] for c in cols] for r in rows ]
-    print(np.array(board))
+    if (verbose):
+        print(np.array(board))
     return board
 
 
@@ -137,11 +138,13 @@ one of those.
 """
 def run(n = 28, iter=100):
     all_results = {}
-    print("Constructing a sudoku puzzle.")
-    print("* creating the solution...")
+    if (verbose):
+        print("Constructing a sudoku puzzle.")
+        print("* creating the solution...")
     a_puzzle_solution = construct_puzzle_solution()
     
-    print("* constructing a puzzle...")
+    if (verbose):
+        print("* constructing a puzzle...")
     for i in range(iter):
         puzzle = copy.deepcopy(a_puzzle_solution)
         (result, number_of_cells) = pluck(puzzle, n)
@@ -183,16 +186,20 @@ def main(num):
         if (i+1) % (10) == 0:
             np.savez('data/sudoku.npz', quizzes=quizzes, solutions=solutions)
 
+        if (i+1) % (100) == 0:
+            print("Puzzle " + str(i+1) + " of " + str(num))
+
 def parse():
     for arg in sys.argv:
         if (arg == "-v"):
+            global verbose
             verbose = True
         if (arg.startswith("-num")):
-            num = arg.split("=")[1]
-        
+            global num
+            num = int(arg.split("=")[1])
+            print("Generating " + str(num) + " puzzles")    
 
 if __name__ == "__main__":
-
     if len(sys.argv) > 1:
         parse()
     main(num)
