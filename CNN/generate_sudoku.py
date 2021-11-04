@@ -169,14 +169,14 @@ def display(puzzle):
 # display(puzzle)          # display that puzzle.
 
 
-def main(num):
+def main(num, fill):
     '''
     Generates `num` games of Sudoku.
     '''
     quizzes = np.zeros((num, hp.puzzleSize, hp.puzzleSize), np.int32)
     solutions = np.zeros((num, hp.puzzleSize, hp.puzzleSize), np.int32)
     for i in range(num):
-        all_results, solution = run(n=hp.puzzleSize ** 2 / 3, iter=10)
+        all_results, solution = run(n=fill, iter=11)
         quiz = best(all_results)
         
         quizzes[i] = quiz
@@ -198,9 +198,13 @@ def parse():
             global num
             num = int(arg.split("=")[1])
             print("Generating " + str(num) + " puzzles")    
+        if (arg.startswith("-fill")):
+            global fill
+            fill = int(arg.split("=")[1])
+            print("Number of filled puzzle cells: " + str(fill))
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         parse()
-    main(num)
+    main(num, fill)
     print("Done!")
