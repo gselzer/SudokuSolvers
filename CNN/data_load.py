@@ -39,6 +39,14 @@ def load_data(type="train"):
     X = np.reshape(X, (-1, hp.puzzleSize, hp.puzzleSize))
     Y = np.reshape(Y, (-1, hp.puzzleSize, hp.puzzleSize))
     return X, Y
+
+def load_data_npz(type="train"):
+  fpath = hp.train_fpath if type=="train" else hp.test_fpath
+  npzfile = np.load(fpath)
+  quizzes = npzfile['quizzes']
+  solutions = npzfile['solutions']
+  print("Loaded ", len(quizzes), " puzzles")
+  return quizzes, solutions
         
 def get_batch_data():
     '''Returns batch data.
@@ -49,7 +57,7 @@ def get_batch_data():
         y: A `Tensor` of int. Has the shape of (batch_size, 9, 9).
         num_batch = A Python int. Number of batches.
     '''
-    X, Y = load_data(type="train")
+    X, Y = load_data_npz(type="train")
     print("******SHAPE: ", X.shape)
     
     # Create Queues

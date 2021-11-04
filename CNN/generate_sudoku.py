@@ -8,6 +8,10 @@ Kyubyong Park. kbpark.linguist@gmail.com www.github.com/kyubyong
 import random, copy
 import numpy as np
 from hyperparams import Hyperparams as hp
+import sys
+
+verbose = False
+num = 10
 
 sample  = [ [3,4,1,2,9,7,6,8,5],
             [2,5,6,8,3,4,9,7,1],
@@ -179,6 +183,17 @@ def main(num):
         if (i+1) % (10) == 0:
             np.savez('data/sudoku.npz', quizzes=quizzes, solutions=solutions)
 
+def parse():
+    for arg in sys.argv:
+        if (arg == "-v"):
+            verbose = True
+        if (arg.startswith("-num")):
+            num = arg.split("=")[1]
+        
+
 if __name__ == "__main__":
-    main(10)
+
+    if len(sys.argv) > 1:
+        parse()
+    main(num)
     print("Done!")
