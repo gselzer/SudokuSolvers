@@ -8,7 +8,7 @@ from __future__ import print_function
 import tensorflow as tf
 import numpy as np
 from train import Graph
-from data_load import load_data
+from data_load import load_data, load_data_npz
 from hyperparams import Hyperparams as hp
 import os
 
@@ -41,7 +41,7 @@ def write_to_file(x, y, preds, fout):
 
 
 def test():
-    x, y = load_data(type="test")
+    x, y = load_data_npz(type="test")
     print(x)
     
     g = Graph(is_training=False)
