@@ -1,7 +1,7 @@
 class Hyperparams:
     '''Hyper parameters'''
     # data
-    train_fpath = './data/sudoku.csv'
+    train_fpath = './data/sudoku.npz'
     test_fpath = './data/sudoku.npz'
     
     # model
@@ -14,6 +14,6 @@ class Hyperparams:
     logdir = "logdir"
     batch_size = 64
     num_epochs = 3
-    cellSize = 3
+    cellSize = 2
     puzzleSize = cellSize ** 2
 
