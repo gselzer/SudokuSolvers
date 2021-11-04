@@ -169,7 +169,7 @@ def display(puzzle):
 # display(puzzle)          # display that puzzle.
 
 
-def main(num, fill):
+def main(num, fill, filename):
     '''
     Generates `num` games of Sudoku.
     '''
@@ -184,7 +184,7 @@ def main(num, fill):
 
         # save every 10 puzzles
         if (i+1) % (10) == 0:
-            np.savez('data/sudoku.npz', quizzes=quizzes, solutions=solutions)
+            np.savez(filename, quizzes=quizzes, solutions=solutions)
 
         if (i+1) % (100) == 0:
             print("Puzzle " + str(i+1) + " of " + str(num))
@@ -202,9 +202,13 @@ def parse():
             global fill
             fill = int(arg.split("=")[1])
             print("Number of filled puzzle cells: " + str(fill))
+        if (arg.startswith("-file")):
+            global filename
+            filename = arg.split("=")[1]
+            print("Outputting puzzles and solutions to: " + str(filename))
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         parse()
-    main(num, fill)
+    main(num, fill, filename)
     print("Done!")
