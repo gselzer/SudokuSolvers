@@ -8,7 +8,7 @@ from __future__ import print_function
 import tensorflow as tf
 import numpy as np
 from train import Graph
-from data_load import load_data
+from data_load import load_data, load_data_npz
 from hyperparams import Hyperparams as hp
 import os
 
@@ -39,9 +39,36 @@ def write_to_file(x, y, preds, fout):
             total_blanks += num_blanks
         fout.write("Total accuracy = %d/%d = %.2f\n\n" % (total_hits, total_blanks, float(total_hits) / total_blanks))
 
+def predict(g, sess, x, y, fout):
+    import copy
+    _preds = copy.copy(x)
+    while 1:
+	istarget, probs, preds = sess.run([g.istarget, g.probs, g.preds], {g.x:_preds, g.y: y})
+	probs = probs.astype(np.float32)
+	preds = preds.astype(np.float32)
+	
+	probs *= istarget #(N, 9, 9)
+	preds *= istarget #(N, 9, 9)
+
+	probs = np.reshape(probs, (-1, hp.puzzleSize*hp.puzzleSize)) #(N, 9*9)
+	preds = np.reshape(preds, (-1, hp.puzzleSize*hp.puzzleSize))#(N, 9*9)
+	
+	_preds = np.reshape(_preds, (-1, hp.puzzleSize*hp.puzzleSize))
+	maxprob_ids = np.argmax(probs, axis=1) # (N, ) <- blanks of the most probable prediction
+	maxprobs = np.max(probs, axis=1, keepdims=False)
+	for j, (maxprob_id, maxprob) in enumerate(zip(maxprob_ids, maxprobs)):
+	    if maxprob != 0:
+		_preds[j, maxprob_id] = preds[j, maxprob_id]
+	_preds = np.reshape(_preds, (-1, hp.puzzleSize, hp.puzzleSize))
+	_preds = np.where(x==0, _preds, y) # # Fill in the non-blanks with correct numbers
+
+	if np.count_nonzero(_preds) == _preds.size: break
+
+    write_to_file(x.astype(np.int32), y, _preds.astype(np.int32), fout)
+
 
 def test():
-    x, y = load_data(type="test")
+    x, y = load_data_npz(type="test")
     print(x)
     
     g = Graph(is_training=False)
@@ -57,32 +84,27 @@ def test():
             
 	    if not os.path.exists('results'): os.mkdir('results')
             fout = 'results/{}.txt'.format(mname)
-            import copy
-            _preds = copy.copy(x)
-            while 1:
-                istarget, probs, preds = sess.run([g.istarget, g.probs, g.preds], {g.x:_preds, g.y: y})
-                probs = probs.astype(np.float32)
-                preds = preds.astype(np.float32)
-                
-                probs *= istarget #(N, 9, 9)
-                preds *= istarget #(N, 9, 9)
+	    predict(g, sess, x, y, fout)
 
-                probs = np.reshape(probs, (-1, hp.puzzleSize*hp.puzzleSize)) #(N, 9*9)
-                preds = np.reshape(preds, (-1, hp.puzzleSize*hp.puzzleSize))#(N, 9*9)
-                
-                _preds = np.reshape(_preds, (-1, hp.puzzleSize*hp.puzzleSize))
-                maxprob_ids = np.argmax(probs, axis=1) # (N, ) <- blanks of the most probable prediction
-                maxprobs = np.max(probs, axis=1, keepdims=False)
-                for j, (maxprob_id, maxprob) in enumerate(zip(maxprob_ids, maxprobs)):
-                    if maxprob != 0:
-                        _preds[j, maxprob_id] = preds[j, maxprob_id]
-                _preds = np.reshape(_preds, (-1, hp.puzzleSize, hp.puzzleSize))
-                _preds = np.where(x==0, _preds, y) # # Fill in the non-blanks with correct numbers
-
-                if np.count_nonzero(_preds) == _preds.size: break
-
-            write_to_file(x.astype(np.int32), y, _preds.astype(np.int32), fout)
-                    
+def test_benchmark(benchmark):
+    x, y = load_data_npz(type="test")
+    print(x)
+    
+    g = Graph(is_training=False)
+    with g.graph.as_default():    
+        sv = tf.train.Supervisor()
+        with sv.managed_session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
+            # Restore parameters
+            sv.saver.restore(sess, tf.train.latest_checkpoint(hp.logdir))
+            print("Restored!")
+            
+            # Get model name
+            mname = open(hp.logdir + '/checkpoint', 'r').read().split('"')[1] # model name
+            
+	    if not os.path.exists('results'): os.mkdir('results')
+            fout = 'results/{}.txt'.format(mname)
+	    benchmark.pedantic(predict, kwargs={'g': g, 'sess': sess, 'x': x, 'y': y, 'fout': fout}, iterations=10)
+     
 if __name__ == '__main__':
     test()
     print("Done")

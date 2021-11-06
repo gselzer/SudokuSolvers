@@ -1,4 +1,4 @@
-from brute_force import backtrack
+from CGA import CGA
 import numpy as np
 
 def load_data(f):
@@ -6,13 +6,14 @@ def load_data(f):
     quizzes = npzfile['quizzes']
     solutions = npzfile['solutions']
     print("Loaded ", len(quizzes), " puzzles")
+    print(quizzes)
     return (quizzes, solutions)
 
 def runAll(quizzes, solutions):
     for i in range(len(quizzes)):
-        result = backtrack(quizzes[i])
+        result = CGA(quizzes[i])
 
-def test_backtracking(benchmark):
+def test_CGA(benchmark):
     quizzes, solutions = load_data('../CNN/data/sudoku.npz')
     benchmark.pedantic(runAll, kwargs={'quizzes': quizzes, 'solutions': solutions}, iterations=10)
 

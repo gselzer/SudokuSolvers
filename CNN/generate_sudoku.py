@@ -169,14 +169,14 @@ def display(puzzle):
 # display(puzzle)          # display that puzzle.
 
 
-def main(num):
+def main(num, minimum, maximum, filename):
     '''
     Generates `num` games of Sudoku.
     '''
     quizzes = np.zeros((num, hp.puzzleSize, hp.puzzleSize), np.int32)
     solutions = np.zeros((num, hp.puzzleSize, hp.puzzleSize), np.int32)
     for i in range(num):
-        all_results, solution = run(n=hp.puzzleSize ** 2 / 3, iter=10)
+        all_results, solution = run(n=int(random.uniform(minimum, maximum+1)), iter=11)
         quiz = best(all_results)
         
         quizzes[i] = quiz
@@ -184,7 +184,32 @@ def main(num):
 
         # save every 10 puzzles
         if (i+1) % (10) == 0:
-            np.savez('data/sudoku.npz', quizzes=quizzes, solutions=solutions)
+            np.savez(filename, quizzes=quizzes, solutions=solutions)
+
+        if (i+1) % (100) == 0:
+            print("Puzzle " + str(i+1) + " of " + str(num))
+
+def parse():
+    for arg in sys.argv:
+        if (arg == "-v"):
+            global verbose
+            verbose = True
+        if (arg.startswith("-num")):
+            global num
+            num = int(arg.split("=")[1])
+            print("Generating " + str(num) + " puzzles")    
+        if (arg.startswith("-min")):
+            global minimum
+            minimum = int(arg.split("=")[1])
+            print("Minimum number of filled puzzle cells: " + str(minimum))
+        if (arg.startswith("-max")):
+            global maximum
+            maximum = int(arg.split("=")[1])
+            print("Maximum number of filled puzzle cells: " + str(maximum))
+        if (arg.startswith("-file")):
+            global filename
+            filename = arg.split("=")[1]
+            print("Outputting puzzles and solutions to: " + str(filename))
 
         if (i+1) % (100) == 0:
             print("Puzzle " + str(i+1) + " of " + str(num))
@@ -202,5 +227,5 @@ def parse():
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         parse()
-    main(num)
+    main(num, minimum, maximum, filename)
     print("Done!")

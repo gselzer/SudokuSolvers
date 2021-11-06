@@ -90,38 +90,27 @@ def CGA(grid):
     offspring = 100
     population = [populateGrid(grid) for x in range(offspring)]
     population = [(g, fitness(g)) for g in population]
-    print(grid)
 
     # initially sort population by fitness
     fitnessSort(population)
 
     # breed population until we find a specimen with fitness of zero
     while (population[0][1] != 0):
-        print("Best fitness: ", population[0][1])
         p = population[0][1]
         m = int(math.ceil(p))
         for i in range(offspring):
             copy = mutate(population[i][0], mask, m)
             copyFitness = fitness(copy)
             population.append((copy, copyFitness))
-        #print(len(population))
 
         fitnessSort(population)
-        #tmp = population[:50]
-        #del population[:50]
-        #tmp.append(random.sample(population, 50))
-        #population = tmp
-        #print(len(population))
         tmp = population[:10]
         population = tmp + random.sample(population, 90)
-        print(len(population))
 
         #fitnessSort(population)
         #del population[-offspring:]
 
-    # print(population[0][0])
     return population[0][0]
-
 
 
 def main():
@@ -132,6 +121,11 @@ def main():
     solution = CGA(grid)
     print(grid)
 
+def main():
+    # load matrix
+    X, Y = load_data(type="test")
+    grid = np.array(X[1])
+    solution = CGA(grid)
 
 if __name__ == "__main__":
     CGA(); print("Done")
