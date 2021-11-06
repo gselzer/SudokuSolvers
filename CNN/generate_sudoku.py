@@ -169,14 +169,14 @@ def display(puzzle):
 # display(puzzle)          # display that puzzle.
 
 
-def main(num, fill, filename):
+def main(num, minimum, maximum, filename):
     '''
     Generates `num` games of Sudoku.
     '''
     quizzes = np.zeros((num, hp.puzzleSize, hp.puzzleSize), np.int32)
     solutions = np.zeros((num, hp.puzzleSize, hp.puzzleSize), np.int32)
     for i in range(num):
-        all_results, solution = run(n=fill, iter=11)
+        all_results, solution = run(n=int(random.uniform(minimum, maximum+1)), iter=11)
         quiz = best(all_results)
         
         quizzes[i] = quiz
@@ -198,10 +198,14 @@ def parse():
             global num
             num = int(arg.split("=")[1])
             print("Generating " + str(num) + " puzzles")    
-        if (arg.startswith("-fill")):
-            global fill
-            fill = int(arg.split("=")[1])
-            print("Number of filled puzzle cells: " + str(fill))
+        if (arg.startswith("-min")):
+            global minimum
+            minimum = int(arg.split("=")[1])
+            print("Minimum number of filled puzzle cells: " + str(minimum))
+        if (arg.startswith("-max")):
+            global maximum
+            maximum = int(arg.split("=")[1])
+            print("Maximum number of filled puzzle cells: " + str(maximum))
         if (arg.startswith("-file")):
             global filename
             filename = arg.split("=")[1]
@@ -210,5 +214,5 @@ def parse():
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         parse()
-    main(num, fill, filename)
+    main(num, minimum, maximum, filename)
     print("Done!")
