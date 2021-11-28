@@ -13,6 +13,7 @@ from tqdm import tqdm
 from tensorflow import keras
 import numpy as np
 from sklearn.model_selection import train_test_split
+import os.path
 
 n2 = hp.puzzleSize
 LSTM_output_units = 9
@@ -36,9 +37,13 @@ def generate_model():
     # Processing layer 2 -> LSTM on rows
     concat.append(keras.layers.Bidirectional(keras.layers.LSTM(LSTM_output_units, return_sequences=True))(input_layer))
 
-    # Processing layer 2 -> LSTM on columns
+    # Processing layer 3 -> LSTM on columns
     transpose = keras.layers.Permute((2, 1))(input_layer)
     concat.append(keras.layers.Bidirectional(keras.layers.LSTM(LSTM_output_units, return_sequences=True))(transpose))
+
+    # Processing layer 4 -> LSTM on submatrices
+    #transform = keras.layers.Lambda(lambda x: submats_to_rows(x))(input_layer)
+    #concat.append(keras.layers.Bidirectional(keras.layers.LSTM(LSTM_output_units, return_sequences=True))(transform))
 
     # Concatenate each layer
     concat_layer = keras.layers.Concatenate()(concat)
@@ -55,6 +60,19 @@ def generate_model():
     print(model.summary())
     return model
 
+def submats_to_rows(mat):
+    print(mat)
+    n = hp.cellSize
+    rows = np.zeros_like(mat)
+    print(rows)
+    r = 0
+    for i in range(n):
+        for j in range(n):
+            submat = mat[n*i:n*(i+1), n*j:n*(j+1)]
+            print(submat)
+            rows[r, :] = np.reshape(submat, (1, n2))
+            r = r + 1
+    return rows
 
 # Converts a 2D numpy solution to a 3D tensorflow tensor, where the third dimension is one-hot encoded.
 # Modified from https://stackoverflow.com/questions/58406795/how-to-convert-2d-numpy-array-to-one-hot-encoding
@@ -72,14 +90,27 @@ def solution_to_one_hot_tensor(solution):
 
     return one_hot.reshape(n2, n2, n2)
 
+checkpoint_filepath = 'logdir/checkpoints/RNN/'
+checkpoint_filename = checkpoint_filepath + 'model.h5'
+def training_callbacks():
+    if not os.path.exists(checkpoint_filepath):
+        os.makedirs(checkpoint_filepath)
+    checkpoint = keras.callbacks.ModelCheckpoint(checkpoint_filename, monitor='loss', verbose=1, save_best_only=True)
+    return [checkpoint]
 
 def main():
-    model = generate_model()
     quizzes, solutions = load_data(train_data)
     solutions = np.array([solution_to_one_hot_tensor(x) for x in solutions])
     train_quizzes, test_quizzes, train_solutions, test_solutions = train_test_split(quizzes, solutions)
 
-    model.fit(train_quizzes, train_solutions, batch_size=batch_size, epochs=hp.num_epochs, verbose=1)
+    if os.path.isfile(checkpoint_filename):
+        print('======LOADING MODEL======')
+        model = keras.models.load_model(checkpoint_filename)
+    else:
+        print('======TRAINING MODEL======')
+        model = generate_model()
+
+        model.fit(train_quizzes, train_solutions, batch_size=batch_size, epochs=hp.num_epochs, verbose=1, callbacks = training_callbacks())
 
     print('Puzzle: \n', test_quizzes[0])
     pred_solutions = model.predict(test_quizzes)
