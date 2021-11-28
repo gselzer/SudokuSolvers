@@ -179,10 +179,10 @@ def main(num, minimum, maximum, filename):
         solutions[i] = solution
 
         # save every 10 puzzles
-        if (i+1) % (10) == 0:
+        if (i+1) % (1000) == 0:
             np.savez(filename, quizzes=quizzes, solutions=solutions)
 
-        if (i+1) % (100) == 0:
+        if (i+1) % (1000) == 0:
             print("Puzzle " + str(i+1) + " of " + str(num))
 
 def parse():
