@@ -13,7 +13,7 @@ class Hyperparams:
     lr = 0.0001
     logdir = "logdir"
     batch_size = 64
-    num_epochs = 3
+    num_epochs = 6
     cellSize = 3
     puzzleSize = cellSize ** 2
 
