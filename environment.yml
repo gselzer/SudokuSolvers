@@ -58,6 +58,7 @@ dependencies:
   - python=2.7.18=ha1903f6_2
   - readline=8.1=h27cfd23_0
   - scandir=1.10.0=pyh5d7bf9c_3
+  - scikit-learn=0.20.3=py27h22eb022_0
   - scipy=1.2.1=py27he2b7bc3_0
   - setuptools=44.0.0=py27_0
   - six=1.16.0=pyhd3eb1b0_0
