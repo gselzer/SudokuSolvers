@@ -19,7 +19,7 @@ n2 = hp.puzzleSize
 LSTM_output_units = 9
 batch_size = 100
 
-train_data = 'data/debug_n100.npz'
+train_data = 'data/train_n500000.npz'
 
 def load_data(filename):
     npzfile = np.load(filename)
@@ -35,11 +35,14 @@ def generate_model():
     concat.append(keras.layers.Lambda(lambda x: x)(input_layer))
 
     # Processing layer 2 -> LSTM on rows
-    concat.append(keras.layers.Bidirectional(keras.layers.LSTM(LSTM_output_units, return_sequences=True))(input_layer))
+    lstm_row = keras.layers.Bidirectional(keras.layers.LSTM(LSTM_output_units, return_sequences=True))(input_layer)
+    concat.append(lstm_row)
+
 
     # Processing layer 3 -> LSTM on columns
     transpose = keras.layers.Permute((2, 1))(input_layer)
-    concat.append(keras.layers.Bidirectional(keras.layers.LSTM(LSTM_output_units, return_sequences=True))(transpose))
+    lstm_col = keras.layers.Bidirectional(keras.layers.LSTM(LSTM_output_units, return_sequences=True))(transpose)
+    concat.append(lstm_col)
 
     # Processing layer 4 -> LSTM on submatrices
     #transform = keras.layers.Lambda(lambda x: submats_to_rows(x))(input_layer)
@@ -47,9 +50,16 @@ def generate_model():
 
     # Concatenate each layer
     concat_layer = keras.layers.Concatenate()(concat)
+    # TODO: can we avoid hardcoding this?
+    concat_reshaped = keras.layers.Reshape((9, 45, 1))(concat_layer);
+    conv = keras.layers.Conv2D(hp.num_filters, hp.filter_size, padding='same')(concat_reshaped)
+    for i in range(2):
+        conv = keras.layers.Conv2D(hp.num_filters, hp.filter_size, padding='same')(conv)
+    conv = keras.layers.Conv2D(1, hp.filter_size, padding='same')(conv)
+    conv = keras.layers.Reshape((9, 45)) (conv)
 
     # Dense Layer to convert to n^6 elements
-    dense = keras.layers.Dense(n2 ** 2, activation='sigmoid')(concat_layer)
+    dense = keras.layers.Dense(n2 ** 2, activation='sigmoid')(conv)
     # Reshape to n^2-by-n^2-by-n^2
     outReshaped=keras.layers.Reshape((n2, n2, n2))(dense)
     # Softmax along last layer
