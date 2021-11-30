@@ -14,16 +14,105 @@ from tensorflow import keras
 import numpy as np
 from sklearn.model_selection import train_test_split
 import os.path
+import tensorflow.keras.backend as K
 
 n2 = hp.puzzleSize
 LSTM_output_units = 9
 batch_size = 1000
 
-train_data = 'data/train_n500000.npz'
+train_data = 'data/debug_n100.npz'
 
 def load_data(filename):
     npzfile = np.load(filename)
     return npzfile['quizzes'], npzfile['solutions']
+
+def submatrices(mat):
+    r, h = mat.shape
+    return (mat.reshape(h//3, 3, -1, 3)
+            .swapaxes(1,2)
+            .reshape(-1, 3, 3))
+
+def input_loss(puzzle, is_training):
+    
+    def loss(y_true, y_pred):
+        blank_indices = np.where(puzzle == 0)
+        pred = tf.math.add(tf.math.argmax(tf.identity(y_pred), axis=0), 1)
+        condition = tf.greater(tf.convert_to_tensor(puzzle), 0)
+        if not is_training:
+            with tf.Session() as sess: 
+                print('puzzle: \n', puzzle)
+                print('pred_puzzle: \n', pred.eval())
+                print('pred_puzzle_indices: \n', pred[blank_indices])
+
+        return K.mean(K.square(puzzle - pred))
+
+    return loss
+
+def dummy_loss(puzzle, is_training):
+    # we expect this number in every row, column, and 3x3 subgrid
+    unit_expected = sum(range(n2+1))
+
+    def loss(y_true, y_pred):
+        l_mse = tf.cast(K.mean(K.square(y_pred - y_true)), tf.float32)
+        
+        true = tf.math.add(tf.math.argmax(y_true, axis=0), 1)
+        pred = tf.math.add(tf.math.argmax(y_pred, axis=0), 1)
+        if not is_training:
+            with tf.Session() as sess: 
+                print('puzzle: \n', puzzle)
+                print('true: \n', true.eval())
+                print('pred: \n', pred.eval())
+
+        row_sums = tf.math.reduce_sum(pred, axis=0) - 45
+        loss_rows = tf.cast(K.mean(K.square(row_sums)), tf.float32)
+
+        col_sums = tf.math.reduce_sum(pred, axis=1) - 45
+        loss_cols = tf.cast(K.mean(K.square(col_sums)), tf.float32)
+
+        if not is_training:
+            with tf.Session() as sess: 
+                print('row_sums: \n', row_sums.eval())
+                print('col_sums: \n', col_sums.eval())
+
+        # TODO: 3x3 subgrid loss
+
+        # TODO: loss from differences between clues and preds
+        return l_mse + loss_rows + loss_cols
+
+    return loss
+
+def sudoku_loss(puzzle):
+    # we expect this number in every row, column, and 3x3 subgrid
+    unit_expected = sum(range(n2+1))
+    puzzle = puzzle.eval(session=tf.Session())
+    print('puzzle: \n', puzzle)
+    clue_indices = np.argwhere(puzzle != 0)
+    blank_indices = np.argwhere(puzzle == 0)
+
+    def loss(y_true, y_pred):
+        #y_pred = tf.math.add(tf.math.argmax(y_pred, axis=0), 1.0)
+        true = np.argmax(y_true, axis=0) + 1
+        print('true: \n', true)
+        pred = np.argmax(y_pred, axis=0) + 1
+        print('pred: \n', pred)
+        loss_mean_squared = K.mean(K.square(pred - true))
+
+        pred_cols = np.sum(pred, axis=0)
+        loss_cols_constraint = K.mean(K.square(pred_cols - unit_expected))
+
+        pred_rows = np.sum(pred, axis=1)
+        loss_rows_constraint = K.mean(K.square(pred_rows - unit_expected))
+
+        pred_boxes = np.array([np.sum(x) for x in submatrices(pred)])
+        loss_boxes_constraint = K.mean(K.square(pred_boxes - unit_expected))
+
+        pred[blank_indices] = 0
+        loss_clues = K.mean(K.square(pred - puzzle))
+
+        return loss_mean_squared  + loss_cols_constraint + loss_rows_constraint + loss_boxes_constraint + loss_clues
+
+
+    return loss
 
 def generate_model():
     # Input layer -> takes in a puzzle matrix
@@ -62,7 +151,7 @@ def generate_model():
     out = keras.layers.Softmax(axis=-1)(outReshaped)
     
     model = keras.models.Model(inputs=input_layer, outputs=out);
-    model.compile(loss='categorical_crossentropy', optimizer='adam')
+    model.compile(loss=dummy_loss(input_layer, True), optimizer='adam')
     print(model.summary())
     return model
 
@@ -123,6 +212,8 @@ def main():
     print('Expected: \n', np.argmax(test_solutions[0], axis=0) + 1)
     s = np.argmax(pred_solutions[0], axis=0) + 1
     print('Actual: \n', s)
+
+    print(input_loss(test_quizzes[0], False)(test_solutions[0], pred_solutions[0]))
    
 
 if __name__ == "__main__":
