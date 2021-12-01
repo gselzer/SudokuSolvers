@@ -12,8 +12,8 @@ class Hyperparams:
     # training scheme
     lr = 0.0001
     logdir = "logdir"
-    batch_size = 64
-    num_epochs = 6
+    batch_size = 512
+    num_epochs = 3
     cellSize = 3
     puzzleSize = cellSize ** 2
 
