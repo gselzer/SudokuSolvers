@@ -26,7 +26,6 @@ sample  = [ [3,4,1,2,9,7,6,8,5],
 """
 Randomly arrange numbers in a grid while making all rows, columns and
 squares (sub-grids) contain the numbers 1 through 9.
-
 For example, "sample" (above) could be the output of this function. """
 def construct_puzzle_solution():
     base  = hp.cellSize
@@ -53,7 +52,6 @@ def construct_puzzle_solution():
 """
 Randomly pluck out cells (numbers) from the solved puzzle grid, ensuring that any
 plucked number can still be deduced from the remaining cells.
-
 For deduction to be possible, each other cell in the plucked number's row, column,
 or square must not be able to contain that number. """
 def pluck(puzzle, n=0):
@@ -118,7 +116,6 @@ def pluck(puzzle, n=0):
     
 """
 That's it.
-
 If we want to make a puzzle we can do this:
     pluck(construct_puzzle_solution())
     
@@ -131,7 +128,6 @@ The following functions are convenience functions for doing just that...
 This uses the above functions to create a new puzzle. It attempts to
 create one with 28 (by default) given cells, but if it can't, it returns
 one with as few givens as it is able to find.
-
 This function actually tries making 100 puzzles (by default) and returns
 all of them. The "best" function that follows this one selects the best
 one of those.

@@ -9,6 +9,10 @@ import numpy as np
 from hyperparams import Hyperparams as hp
 
 def load_data(type="train"):
+    print("----------TYPE: ",type)
+    if type=="test":
+        npzfile = np.load(hp.test_fpath)
+        return npzfile['quizzes'], npzfile['solutions']
     '''Loads training / test data.
     
     Args

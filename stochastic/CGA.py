@@ -113,6 +113,13 @@ def CGA(grid):
     return population[0][0]
 
 
+def main():
+    # load matrix
+    X, Y = load_data(type="test")
+    grid = np.array(X[1])
+    # print solution
+    solution = CGA(grid)
+    print(grid)
 
 def main():
     # load matrix

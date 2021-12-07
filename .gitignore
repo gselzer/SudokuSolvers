@@ -3,6 +3,7 @@
 asset/
 data/
 CNN/logdir/
+CNN_kernel/model.h5
 _*
 *~
 
