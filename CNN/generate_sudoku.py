@@ -179,7 +179,7 @@ def main(num, minimum, maximum, filename):
         solutions[i] = solution
 
         # save every 10 puzzles
-        if (i+1) % (1000) == 0:
+        if (i+1) % (10000) == 0:
             np.savez(filename, quizzes=quizzes, solutions=solutions)
 
         if (i+1) % (1000) == 0:
