@@ -11,7 +11,7 @@ import numpy as np
 from hyperparams import Hyperparams as hp
 import os
 
-test_data = 'data/debug_n100.npz'
+test_data = 'data/test_n100.npz'
 checkpoint_filename = './model.h5'
 
 
