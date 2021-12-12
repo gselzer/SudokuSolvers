@@ -11,8 +11,8 @@ import numpy as np
 from hyperparams import Hyperparams as hp
 import os
 
-test_data = 'data/debug_n100.npz'
-checkpoint_filename = './model.h5'
+test_data = '../CNN/data/test50size3.npz'
+checkpoint_filename = './RNN/model.h5'
 
 
 def load_data(filename):

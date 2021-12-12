@@ -165,6 +165,18 @@ def display(puzzle):
 # display(puzzle)          # display that puzzle.
 
 
+def clearRows(quiz, rows):
+    for row in rows:
+        for col in range(len(quiz[row])):
+            quiz[row][col] = 0
+    return quiz
+
+def clearCols(quiz, cols):
+    for row in range(len(quiz)):
+        for col in cols:
+            quiz[row][col] = 0
+    return quiz
+
 def main(num, minimum, maximum, filename):
     '''
     Generates `num` games of Sudoku.
@@ -172,11 +184,22 @@ def main(num, minimum, maximum, filename):
     quizzes = np.zeros((num, hp.puzzleSize, hp.puzzleSize), np.int32)
     solutions = np.zeros((num, hp.puzzleSize, hp.puzzleSize), np.int32)
     for i in range(num):
-        all_results, solution = run(n=int(random.uniform(minimum, maximum+1)), iter=11)
+        all_results, solution = run(n=int(random.uniform(minimum, maximum+1)), iter=1)
         quiz = best(all_results)
+
+        rows = []
+        for j in range(3):
+            rows.append(random.randint(0, len(quiz)-1))
+
+        if (random.randint(0,1) == 1):
+            quiz = clearRows(copy.deepcopy(solution), rows)
+        else:
+            quiz = clearCols(copy.deepcopy(solution), rows)
         
         quizzes[i] = quiz
         solutions[i] = solution
+
+        
 
         # save every 10 puzzles
         if (i+1) % (1000) == 0:
@@ -184,6 +207,9 @@ def main(num, minimum, maximum, filename):
 
         if (i+1) % (1000) == 0:
             print("Puzzle " + str(i+1) + " of " + str(num))
+            display(quiz)
+
+    np.savez(filename, quizzes=quizzes, solutions=solutions)
 
 def parse():
     for arg in sys.argv:

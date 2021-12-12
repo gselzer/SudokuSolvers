@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow import keras
 #from keras.models import Model
 from hyperparams import Hyperparams as hp
+from generate_sudoku import run
 import numpy as np
 import os.path
 import tensorflow.keras.backend as K
@@ -13,18 +14,20 @@ LSTM_output_units = 9
 batch_size = hp.batch_size
 
 #train_data = 'data/debug_n100.npz'
-train_data = '../CNN/data/debug_n100.npz'
+train_data = '../CNN/data/test100_continual.npz'
 
-checkpoint_filepath = './RNN/'
-checkpoint_filename = checkpoint_filepath + 'CNN_LSTM - model.h5'
+checkpoint_filename = './models/CNN_LSTM - model.h5'
 
 def load_data(filename):
     npzfile = np.load(filename)
     return npzfile['quizzes'], npzfile['solutions']
 
-
 def model_input(input):
   return np.expand_dims(input,axis=0)
+  
+def generatePuzzle():
+    all_results, solution = run(n=0, iter=0)
+    quiz = best(all_results)
 
 def main():
     quizzes, solutions = load_data(train_data)
@@ -41,7 +44,7 @@ def main():
 
     # Loading puzzles
     puzzle_data_save_name = 'debug_n100.npz'
-    path = "../CNN/data/" + puzzle_data_save_name
+    path = '../CNN/data/test100_continual.npz'
     puzzle_data = np.load(path)
     quizzes, solutions = puzzle_data['quizzes'], puzzle_data['solutions']
 

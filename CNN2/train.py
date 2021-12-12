@@ -13,7 +13,7 @@ LSTM_output_units = 9
 batch_size = hp.batch_size
 
 #train_data = 'data/debug_n100.npz'
-train_data = 'data/train_n500000.npz'
+train_data = '../CNN/data/train500ksize3.npz'
 
 def load_data(filename):
     npzfile = np.load(filename)
