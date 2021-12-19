@@ -2,7 +2,7 @@ class Hyperparams:
     '''Hyper parameters'''
     # data
     train_fpath = './data/sudoku.npz'
-    test_fpath = './data/test.npz'
+    test_fpath = './data/test_n100easy.npz'
     
     # model
     num_blocks = 10

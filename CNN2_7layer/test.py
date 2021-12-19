@@ -11,7 +11,7 @@ import numpy as np
 from hyperparams import Hyperparams as hp
 import os
 
-test_data = 'data/test_n100easy.npz'
+test_data = 'data/test_n100.npz'
 checkpoint_filename = './model.h5'
 
 
@@ -62,6 +62,7 @@ def test():
     x, y = load_data(test_data)
     
     model = keras.models.load_model(checkpoint_filename)
+    print(model.summary())
 
     if not os.path.exists('results'): os.mkdir('results')
     fout = 'results.txt'

@@ -11,7 +11,7 @@ import numpy as np
 from hyperparams import Hyperparams as hp
 import os
 
-test_data = 'data/test_n100easy.npz'
+test_data = 'data/test_n100.npz'
 checkpoint_filename = './model.h5'
 
 
@@ -69,14 +69,20 @@ def test():
 
 
 def test_benchmark(benchmark):
-    x, y = load_data(test_data)
-
-    model = keras.models.load_model(checkpoint_filename)
-
-    if not os.path.exists('results'): os.mkdir('results')
-    fout = 'results.txt'
-    predict(model, x, y, fout)
-    benchmark.pedantic(predict, kwargs={'model': model, 'x': x, 'y': y, 'fout': fout}, iterations=10)
+    x, y = load_data_npz(type="test")
+    print(x)
+    
+    g = Graph(is_training=False)
+    with g.graph.as_default():    
+        sv = tf.train.Supervisor()
+        with sv.managed_session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
+            # Restore parameters
+            sv.saver.restore(sess, tf.train.latest_checkpoint(hp.logdir))
+            print("Restored!")
+            
+	    if not os.path.exists('results'): os.mkdir('results')
+            fout = 'results/{}.txt'
+	    benchmark.pedantic(predict, kwargs={'g': g, 'sess': sess, 'x': x, 'y': y, 'fout': fout}, iterations=10)
      
 if __name__ == '__main__':
     test()

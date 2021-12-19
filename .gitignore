@@ -1,7 +1,9 @@
 *.pyc
+*.h5
 *sudoku.csv
 asset/
 data/
+CNN/data
 CNN/logdir/
 CNN_kernel/model.h5
 _*

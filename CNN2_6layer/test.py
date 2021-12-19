@@ -62,6 +62,7 @@ def test():
     x, y = load_data(test_data)
     
     model = keras.models.load_model(checkpoint_filename)
+    print(model.summary())
 
     if not os.path.exists('results'): os.mkdir('results')
     fout = 'results.txt'

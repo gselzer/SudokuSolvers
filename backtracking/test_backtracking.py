@@ -13,7 +13,7 @@ def runAll(quizzes, solutions):
         result = backtrack(quizzes[i])
 
 def test_backtracking(benchmark):
-    quizzes, solutions = load_data('../CNN/data/sudoku.npz')
+    quizzes, solutions = load_data('../CNN/data/test_n100easy.npz')
     benchmark.pedantic(runAll, kwargs={'quizzes': quizzes, 'solutions': solutions}, iterations=10)
 
 
