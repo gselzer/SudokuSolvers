@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 #/usr/bin/python2
 
+"""
+3-layer CNN used for hyperparameter testing
+- layer filters an eighth of original number
+Adapted from CNN2/train.py
+Author: Gabriel Selzer
+"""
+
 import tensorflow as tf
 from tensorflow import keras
 from hyperparams import Hyperparams as hp
@@ -84,7 +91,7 @@ def main():
         model = generate_model()
 
         model.fit(quizzes, solutions, batch_size=batch_size, epochs=hp.num_epochs, verbose=1, callbacks = training_callbacks())
-   
+
 
 if __name__ == "__main__":
     main(); print("Done")

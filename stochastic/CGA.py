@@ -1,5 +1,8 @@
-# Taken from: https://www.geeksforgeeks.org/sudoku-backtracking-7/
-# Author: Gabriel Selzer
+"""
+Stochastic approach to sudoku solution
+Adapted from https://arxiv.org/abs/0805.0697
+Author: Gabriel Selzer
+"""
 
 from data_load import load_data, get_batch_data
 from hyperparams import Hyperparams as hp
@@ -69,7 +72,7 @@ def mutateSubgrid(grid, mask, x, y):
         return
     i = mutableIndices[np.random.randint(0, mutableIndices.shape[0], 2)]
     subgrid[i[0,0], i[0, 1]], subgrid[i[1,0], i[1, 1]] = subgrid[i[1, 0], i[1, 1]], subgrid[i[0, 0], i[0, 1]]
-    
+
 
 def mutate(grid, mask, m):
     copy = np.matrix.copy(grid)
@@ -78,7 +81,7 @@ def mutate(grid, mask, m):
         c = random.randint(0, 3)
         mutateSubgrid(copy, mask, r, c)
     return copy
-    
+
 
 
 def CGA(grid):

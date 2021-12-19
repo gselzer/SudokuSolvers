@@ -1,6 +1,11 @@
 from brute_force import backtrack
 import numpy as np
 
+"""
+A pytest test used to benchmark the brute force approach
+Author: Gabriel Selzer
+"""
+
 def load_data(f):
     npzfile = np.load(f)
     quizzes = npzfile['quizzes']

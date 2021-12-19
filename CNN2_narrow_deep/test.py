@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 #/usr/bin/python2
 '''
-By kyubyong park. kbpark.linguist@gmail.com. 
+By kyubyong park. kbpark.linguist@gmail.com.
 https://www.github.com/kyubyong/sudoku
+Adapted by: Gabriel Selzer
 '''
 from __future__ import print_function
 import tensorflow as tf
@@ -60,7 +61,7 @@ def predict(model, x, y, fout):
 
 def test():
     x, y = load_data(test_data)
-    
+
     model = keras.models.load_model(checkpoint_filename)
 
     if not os.path.exists('results'): os.mkdir('results')
@@ -71,19 +72,19 @@ def test():
 def test_benchmark(benchmark):
     x, y = load_data_npz(type="test")
     print(x)
-    
+
     g = Graph(is_training=False)
-    with g.graph.as_default():    
+    with g.graph.as_default():
         sv = tf.train.Supervisor()
         with sv.managed_session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
             # Restore parameters
             sv.saver.restore(sess, tf.train.latest_checkpoint(hp.logdir))
             print("Restored!")
-            
+
 	    if not os.path.exists('results'): os.mkdir('results')
             fout = 'results/{}.txt'
 	    benchmark.pedantic(predict, kwargs={'g': g, 'sess': sess, 'x': x, 'y': y, 'fout': fout}, iterations=10)
-     
+
 if __name__ == '__main__':
     test()
     print("Done")

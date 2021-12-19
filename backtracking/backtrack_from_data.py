@@ -3,6 +3,11 @@ from brute_force import backtrack
 import numpy as np
 import timeit
 
+"""
+A timeit based approach to assess the brute force sudoku solution approach.
+Author: Thomas Antonacci
+"""
+
 def load_data(f):
     npzfile = np.load(f)
     quizzes = npzfile['quizzes']

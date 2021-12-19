@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 #/usr/bin/python2
 '''
-By kyubyong park. kbpark.linguist@gmail.com. 
+By kyubyong park. kbpark.linguist@gmail.com.
 https://www.github.com/kyubyong/sudoku
+Adapted by: Gabriel Selzer
 '''
 from __future__ import print_function
 import tensorflow as tf
@@ -60,7 +61,7 @@ def predict(model, x, y, fout):
 
 def test():
     x, y = load_data(test_data)
-    
+
     model = keras.models.load_model(checkpoint_filename)
 
     if not os.path.exists('results'): os.mkdir('results')
@@ -77,7 +78,7 @@ def test_benchmark(benchmark):
     fout = 'results.txt'
     predict(model, x, y, fout)
     benchmark.pedantic(predict, kwargs={'model': model, 'x': x, 'y': y, 'fout': fout}, iterations=10)
-     
+
 if __name__ == '__main__':
     test()
     print("Done")

@@ -1,7 +1,12 @@
 #!/usr/bin/python2
 """
+Generates a given number of Sudoku puzzles. Alterations made from the original
+to provide more flexibility.
+Author: Thomas Antonacci
+Author: Gabriel Selzer
+==== ADAPTED FROM ====
 This is adapted from https://www.ocf.berkeley.edu/~arel/sudoku/main.html.
-Generates 1 million Sudoku games. 
+Generates 1 million Sudoku games.
 Kyubyong Park. kbpark.linguist@gmail.com www.github.com/kyubyong
 """
 
@@ -22,7 +27,7 @@ sample  = [ [3,4,1,2,9,7,6,8,5],
             [5,6,3,7,8,9,4,1,2],
             [4,1,9,5,6,2,7,3,8],
             [7,2,8,3,4,1,5,6,9] ]
-            
+
 """
 Randomly arrange numbers in a grid while making all rows, columns and
 squares (sub-grids) contain the numbers 1 through 9.
@@ -36,9 +41,9 @@ def construct_puzzle_solution():
 
     # randomize rows, columns and numbers (of valid base pattern)
     from random import sample
-    def shuffle(s): return sample(s,len(s)) 
-    rBase = range(base) 
-    rows  = [ g*base + r for g in shuffle(rBase) for r in shuffle(rBase) ] 
+    def shuffle(s): return sample(s,len(s))
+    rBase = range(base)
+    rows  = [ g*base + r for g in shuffle(rBase) for r in shuffle(rBase) ]
     cols  = [ g*base + c for g in shuffle(rBase) for c in shuffle(rBase) ]
     nums  = shuffle(range(1,base*base+1))
 
@@ -63,7 +68,7 @@ def pluck(puzzle, n=0):
         v = puz[int(c/hp.puzzleSize)][c%hp.puzzleSize]
         if puz[i][j] == v: return True
         if puz[i][j] in range(1,hp.puzzleSize+1): return False
-            
+
         for m in range(hp.puzzleSize): # test row, col, square
             # if not the cell itself, and the mth cell of the group contains the value v, then "no"
             if not (m==c/hp.puzzleSize and j==c%hp.puzzleSize) and puz[m][j] == v: return False
@@ -112,13 +117,13 @@ def pluck(puzzle, n=0):
 
     # This is the puzzle we found, in all its glory.
     return (puzzle, len(cells))
-    
-    
+
+
 """
 That's it.
 If we want to make a puzzle we can do this:
     pluck(construct_puzzle_solution())
-    
+
 The following functions are convenience functions for doing just that...
 """
 
@@ -138,7 +143,7 @@ def run(n = 28, iter=100):
         print("Constructing a sudoku puzzle.")
         print("* creating the solution...")
     a_puzzle_solution = construct_puzzle_solution()
-    
+
     if (verbose):
         print("* constructing a puzzle...")
     for i in range(iter):
@@ -146,7 +151,7 @@ def run(n = 28, iter=100):
         (result, number_of_cells) = pluck(puzzle, n)
         all_results.setdefault(number_of_cells, []).append(result)
         if number_of_cells <= n: break
- 
+
     return all_results, a_puzzle_solution
 
 def best(set_of_puzzles):
@@ -158,7 +163,7 @@ def display(puzzle):
     for row in puzzle:
         print(' '.join([str(n or '_') for n in row]))
 
-    
+
 # """ Controls starts here """
 # results = run(n=0)       # find puzzles with as few givens as possible.
 # puzzle  = best(results)  # use the best one of those puzzles.
@@ -174,7 +179,7 @@ def main(num, minimum, maximum, filename):
     for i in range(num):
         all_results, solution = run(n=int(random.uniform(minimum, maximum+1)), iter=11)
         quiz = best(all_results)
-        
+
         quizzes[i] = quiz
         solutions[i] = solution
 
@@ -193,7 +198,7 @@ def parse():
         if (arg.startswith("-num")):
             global num
             num = int(arg.split("=")[1])
-            print("Generating " + str(num) + " puzzles")    
+            print("Generating " + str(num) + " puzzles")
         if (arg.startswith("-min")):
             global minimum
             minimum = int(arg.split("=")[1])
