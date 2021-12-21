@@ -1,0 +1,1 @@
+The notebook can be viewed by uploading all three of these items to Google Drive, and change the directories in the notebook to the relevant directory
