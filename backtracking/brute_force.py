@@ -1,5 +1,8 @@
-# Taken from: https://www.geeksforgeeks.org/sudoku-backtracking-7/
-# Author: Gabriel Selzer
+"""
+An algorithm using a brute force approach to solve Sudoku puzzleSize
+Approach derived from: https://www.geeksforgeeks.org/sudoku-backtracking-7/
+Author: Gabriel Selzer
+"""
 
 from data_load import load_data, get_batch_data
 from hyperparams import Hyperparams as hp
@@ -48,7 +51,7 @@ def backtrack(X):
 
 
 def main():
-    
+
     X, Y = load_data(type="test")
     try:
         solution = backtrack(X[1])

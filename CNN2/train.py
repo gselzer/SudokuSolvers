@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 #/usr/bin/python2
 
+"""
+3-layer CNN adapted from 
+https://towardsdatascience.com/solving-sudoku-with-convolution-neural-network-keras-655ba4be3b11
+Author: Gabriel Selzer
+"""
+
 import tensorflow as tf
 from tensorflow import keras
 from hyperparams import Hyperparams as hp
@@ -12,7 +18,6 @@ n2 = hp.puzzleSize
 LSTM_output_units = 9
 batch_size = hp.batch_size
 
-#train_data = 'data/debug_n100.npz'
 train_data = 'data/train_n500000.npz'
 
 def load_data(filename):

@@ -20,7 +20,7 @@ n2 = hp.puzzleSize
 LSTM_output_units = 9
 batch_size = 1000
 
-train_data = 'data/debug_n100.npz'
+train_data = 'data/train_n500000.npz'
 
 def load_data(filename):
     npzfile = np.load(filename)

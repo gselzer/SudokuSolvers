@@ -1,6 +1,11 @@
 from brute_force import backtrack
 import numpy as np
 
+"""
+A pytest test used to benchmark the brute force approach
+Author: Gabriel Selzer
+"""
+
 def load_data(f):
     npzfile = np.load(f)
     quizzes = npzfile['quizzes']
@@ -13,7 +18,7 @@ def runAll(quizzes, solutions):
         result = backtrack(quizzes[i])
 
 def test_backtracking(benchmark):
-    quizzes, solutions = load_data('../CNN/data/sudoku.npz')
+    quizzes, solutions = load_data('../CNN/data/test_n100easy.npz')
     benchmark.pedantic(runAll, kwargs={'quizzes': quizzes, 'solutions': solutions}, iterations=10)
 
 
