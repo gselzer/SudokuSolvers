@@ -13,7 +13,7 @@ LSTM_output_units = 9
 batch_size = hp.batch_size
 
 #train_data = 'data/debug_n100.npz'
-train_data = '../CNN/data/train50ksize3.npz'
+train_data = '../CNN/data/test100000_continual.npz'
 
 def load_data(filename):
     npzfile = np.load(filename)
@@ -37,7 +37,8 @@ def generate_model():
 
     # Processing layer 3 -> LSTM on columns
     transpose = keras.layers.Permute((2, 1))(input_norm)
-    lstm_col = keras.layers.Bidirectional(keras.layers.LSTM(LSTM_output_units, return_sequences=True))(transpose)
+    lstm_col = keras.layers.Bidirectional(keras.layers.LSTM(10 * LSTM_output_units, return_sequences=True))(transpose)
+    lstm_col = keras.layers.Bidirectional(keras.layers.LSTM(10*LSTM_output_units, return_sequences=True))(lstm_col)
     lstm_col = keras.layers.Bidirectional(keras.layers.LSTM(2*LSTM_output_units, return_sequences=True))(lstm_col)
     concat.append(lstm_col)
 
@@ -122,8 +123,8 @@ def one_hot(solution):
 def arg_max(solution):
     return np.argmax(solution, axis=1) + 1
 
-checkpoint_filepath = './RNN/'
-checkpoint_filename = checkpoint_filepath + 'model.h5'
+checkpoint_filepath = './models/'
+checkpoint_filename = checkpoint_filepath + 'CNN_LSTM - model.h5'
 def training_callbacks():
     if not os.path.exists(checkpoint_filepath):
         os.makedirs(checkpoint_filepath)
@@ -134,9 +135,13 @@ def main():
     quizzes, solutions = load_data(train_data)
     solutions = solutions - 1
 
+    for i in range(20):
+        print(quizzes[i])
+
     if os.path.isfile(checkpoint_filename):
         print('======LOADING MODEL======')
         model = keras.models.load_model(checkpoint_filename)
+        print(model.summary())
     else:
         print('======TRAINING MODEL======')
         model = generate_model()
